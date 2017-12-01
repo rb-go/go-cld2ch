@@ -10,12 +10,12 @@ var (
 
 type conf struct {
 	System struct {
-		ListenOn	string `yaml:"listenOn"`
-		MaxThreads int `yaml:"maxThreads"`
+		ListenOn   string `yaml:"listenOn"`
+		MaxThreads int    `yaml:"maxThreads"`
 	}
 	Clickhouse struct {
 		ConnString string `yaml:"connString"`
-		DBName string `yaml:"dbname"`
+		DBName     string `yaml:"dbname"`
 	}
 }
 

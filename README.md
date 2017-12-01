@@ -4,6 +4,10 @@ go-cld2ch
 > **Very Important Note :fire:**
 > 
 > - go-cld2ch is in early beta. Made for my own needs
+> - go-cld2ch is requires golang 1.8+
+> - you can must set dbname in configs.yml to use cld2ch, 
+> - table CollectD will be created in DB with dbname
+
 
 
 How to install

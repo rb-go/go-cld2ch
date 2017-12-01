@@ -8,10 +8,8 @@ os:
 
 
 go:
-  - 1.6.4
-  - 1.7.6
   - 1.8.5
-  - 1.9.4
+  - 1.9.2
   - tip
 
 matrix:
@@ -58,22 +56,22 @@ before_deploy:
   - pandoc README.md -f markdown -t html -s -o README.html
   - cp config.smpl.yml config.yml
   - mkdir release
-  - export GOARCH=amd64 && export GOOS=linux && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-linux-amd64_g$TRAVIS_GO_VERSION.tar.gz cld2ch README.html config.yml install.sh cld2ch.service
-  - export GOARCH=arm &&   export GOOS=linux && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-linux-arm_g$TRAVIS_GO_VERSION.tar.gz cld2ch README.html config.yml install.sh cld2ch.service
-  - export GOARCH=arm64 && export GOOS=linux && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-linux-arm64_g$TRAVIS_GO_VERSION.tar.gz cld2ch README.html config.yml install.sh cld2ch.service
-  - export GOARCH=amd64 && export GOOS=darwin && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-darwin-amd64_g$TRAVIS_GO_VERSION.zip cld2ch README.html config.yml
-  - export GOARCH=amd64 && export GOOS=windows && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch.exe && zip release/cld2ch-windows-amd64_g$TRAVIS_GO_VERSION.zip cld2ch.exe README.html config.yml
+  - export GOARCH=amd64 && export GOOS=linux && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-linux-amd64_$TRAVIS_TAG.tar.gz cld2ch README.html config.yml install.sh cld2ch.service
+  - export GOARCH=arm &&   export GOOS=linux && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-linux-arm_$TRAVIS_TAG.tar.gz cld2ch README.html config.yml install.sh cld2ch.service
+  - export GOARCH=arm64 && export GOOS=linux && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-linux-arm64_$TRAVIS_TAG.tar.gz cld2ch README.html config.yml install.sh cld2ch.service
+  - export GOARCH=amd64 && export GOOS=darwin && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch && chmod +x cld2ch && tar -zcvf release/cld2ch-darwin-amd64_$TRAVIS_TAG.zip cld2ch README.html config.yml
+  - export GOARCH=amd64 && export GOOS=windows && go env && go build --ldflags "$GO_BUILD_LDFLAGS" -o cld2ch.exe && zip release/cld2ch-windows-amd64_$TRAVIS_TAG.zip cld2ch.exe README.html config.yml
   
 deploy:
   - provider: releases
     skip_cleanup: true
     api_key: $GITHUB_OAUTH_TOKEN
     file:
-      - "release/cld2ch-linux-amd64_g$TRAVIS_GO_VERSION.tar.gz"
-      - "release/cld2ch-linux-arm_g$TRAVIS_GO_VERSION.tar.gz"
-      - "release/cld2ch-linux-arm64_g$TRAVIS_GO_VERSION.tar.gz"
-      - "release/cld2ch-darwin-amd64_g$TRAVIS_GO_VERSION.zip"
-      - "release/cld2ch-windows-amd64_g$TRAVIS_GO_VERSION.zip"
+      - "release/cld2ch-linux-amd64_$TRAVIS_TAG.tar.gz"
+      - "release/cld2ch-linux-arm_$TRAVIS_TAG.tar.gz"
+      - "release/cld2ch-linux-arm64_$TRAVIS_TAG.tar.gz"
+      - "release/cld2ch-darwin-amd64_$TRAVIS_TAG.zip"
+      - "release/cld2ch-windows-amd64_$TRAVIS_TAG.zip"
     on:
       repo: riftbit/go-cld2ch
       tags: true

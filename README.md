@@ -12,7 +12,7 @@ go-cld2ch
 
 How to install
 -------------
- - Download [<i class="icon-upload"></i> latest release](#publish-a-document) archive for your plaform
+ - Download [<i class="icon-upload"></i> latest release](https://github.com/riftbit/go-cld2ch/releases) archive for your plaform
  - Unrachive and go to the unarchived path
  - If you are on linux with systemd - run `install.sh`
  - Edit configs in /etc/cld2ch/configs.yml

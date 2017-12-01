@@ -1,0 +1,19 @@
+[Unit]
+Description=CollectD to Clickhouse Metrics Transfer Service
+ConditionPathExists=/etc/cld2ch
+After=network.target
+
+[Service]
+PIDFile=/tmp/cld2ch.pid-4040
+User=root
+Group=root
+LimitNOFILE=65535
+
+Restart=on-failure
+RestartSec=10
+
+WorkingDirectory=/etc/cld2ch
+ExecStart=/bin/bash -c '/etc/cld2ch/cld2ch -c /etc/cld2ch/config.yml'
+
+[Install]
+WantedBy=multi-user.target

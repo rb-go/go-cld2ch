@@ -1,0 +1,7 @@
+system:
+  maxThreads: 250
+  listenOn: "0.0.0.0:25826"
+
+clickhouse:
+  connString: "tcp://127.0.0.1:9000?read_timeout=10&write_timeout=20"
+  dbname: "CollectD"

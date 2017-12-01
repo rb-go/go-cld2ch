@@ -1,2 +1,4 @@
 # go-cld2ch
-CollectD TCP to Clickhouse TCP
+CollectD Native to Clickhouse Metrics transfer service
+
+:fire: Very early beta!

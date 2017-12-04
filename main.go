@@ -83,8 +83,5 @@ func processCollectDPacket(packet collectd.Packet) {
 		insData = append(insData, tmpIns)
 	}
 
-	err = insertCollectDToCH(insData)
-	if err != nil {
-		log.Fatalln("Wrong inserting data to Clickhouse", err)
-	}
+	insertCollectDToCH(insData)
 }

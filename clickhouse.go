@@ -93,21 +93,25 @@ type cdElementData struct {
 	ParamValue    float64
 }
 
-func insertCollectDToCH(insData []cdElementData) error {
+func insertCollectDToCH(insData []cdElementData) {
 	if len(insData) < 1 {
-		return nil
+		return
 	}
 	for _, element := range insData {
 		checkAndCreateTableIfNeed(element.Plugin)
-		_, err := clickHouseDB.Exec(`INSERT INTO `+element.Plugin+` (EventTime, Hostname, ParamName, ParamValue) VALUES (?, ?, ?, ?)`,
+		var tx, _ = clickHouseDB.Begin()
+		var stmt, _ = tx.Prepare(`INSERT INTO ` + element.Plugin + ` (EventTime, Hostname, ParamName, ParamValue) VALUES (?, ?, ?, ?)`)
+		_, err := stmt.Exec(
 			element.EventDateTime,
 			element.Hostname,
 			element.ParamName,
 			element.ParamValue,
 		)
 		if err != nil {
-			return err
+			log.Fatalln("Error on EXEC Statement:", err)
+		}
+		if err := tx.Commit(); err != nil {
+			log.Fatalln("Error on Commit Statement:", err)
 		}
 	}
-	return nil
 }

@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+
+	"github.com/patrickmn/go-cache"
 )
 
 var (
@@ -25,3 +27,5 @@ var config conf
 var configPath string
 
 var clickHouseDB *sql.DB
+
+var cached *cache.Cache

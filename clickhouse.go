@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	"log"
-
 	"time"
 
 	"github.com/kshvakov/clickhouse"
+	"github.com/patrickmn/go-cache"
 )
 
 func connectClickDB() {
@@ -28,7 +28,10 @@ func connectClickDB() {
 	log.Println("Ping to Clickhouse - OK")
 
 	createClickDB()
-	createCollectdTable()
+	tables := getTablesList()
+	for _, tbl := range tables {
+		cached.Set(tbl, 1, cache.NoExpiration)
+	}
 }
 
 func createClickDB() {
@@ -42,19 +45,43 @@ func createClickDB() {
 	}
 }
 
-func createCollectdTable() {
+func getTablesList() []string {
+	rows, err := clickHouseDB.Query("SHOW TABLES")
+	if err != nil {
+		log.Fatalln("Error on SHOW TABLES:", err)
+	}
+	var tables []string
+
+	for rows.Next() {
+		var tableRow string
+		if err := rows.Scan(&tableRow); err != nil {
+			log.Fatalln("Error on scanning SHOW TABLES:", err)
+		}
+		tables = append(tables, tableRow)
+	}
+	return tables
+}
+
+func createCollectdTable(tableName string) {
 	_, err := clickHouseDB.Exec(`
-CREATE TABLE IF NOT EXISTS CollectD (
-	EventDate DEFAULT toDate(now()),
+CREATE TABLE IF NOT EXISTS ` + tableName + ` (
+	EventDate DEFAULT toDate(EventTime),
 	EventTime DateTime DEFAULT now(),
 	Hostname String,
-	Plugin String,
 	ParamName String,
 	ParamValue Float64
-) ENGINE = MergeTree(EventDate, (Hostname, Plugin, ParamName, EventTime, EventDate), 8192)
+) ENGINE = MergeTree(EventDate, (Hostname, EventTime), 8192)
 `)
 	if err != nil {
 		log.Fatalln("Creating table error:", err)
+	}
+	cached.Set(tableName, 1, cache.NoExpiration)
+}
+
+func checkAndCreateTableIfNeed(table string) {
+	_, foundTable := cached.Get(table)
+	if foundTable != true {
+		createCollectdTable(table)
 	}
 }
 
@@ -70,26 +97,17 @@ func insertCollectDToCH(insData []cdElementData) error {
 	if len(insData) < 1 {
 		return nil
 	}
-	var (
-		tx, _   = clickHouseDB.Begin()
-		stmt, _ = tx.Prepare("INSERT INTO CollectD VALUES (?, ?, ?, ?, ?, ?")
-	)
 	for _, element := range insData {
-		if _, err := stmt.Exec(
-			element.EventDateTime,
+		checkAndCreateTableIfNeed(element.Plugin)
+		_, err := clickHouseDB.Exec(`INSERT INTO `+element.Plugin+` (EventTime, Hostname, ParamName, ParamValue) VALUES (?, ?, ?, ?)`,
 			element.EventDateTime,
 			element.Hostname,
-			element.Plugin,
 			element.ParamName,
 			element.ParamValue,
-		); err != nil {
+		)
+		if err != nil {
 			return err
 		}
-	}
-	err := tx.Commit()
-	if err != nil {
-		tx.Rollback()
-		return err
 	}
 	return nil
 }

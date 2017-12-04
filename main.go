@@ -8,6 +8,9 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"time"
+
+	"github.com/patrickmn/go-cache"
 	collectd "github.com/paulhammond/gocollectd"
 	"gopkg.in/yaml.v2"
 )
@@ -35,11 +38,16 @@ func initRuntime() {
 	debug.SetMaxThreads(config.System.MaxThreads)
 }
 
+func initInternalCache() {
+	cached = cache.New(60*time.Minute, 1*time.Minute)
+}
+
 func main() {
 	fmt.Printf("Version:    [%s]\nBuild:      [%s]\nBuild Date: [%s]\n", version, build, buildDate)
 	parseCommandLineParams()
 	initConfigs()
 	initRuntime()
+	initInternalCache()
 	connectClickDB()
 
 	c := make(chan collectd.Packet)
